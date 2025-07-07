@@ -1,0 +1,27 @@
+<div class="container ">
+  <div class="vh-100 bg-light bg-gradient w-100">
+    <div class="row justify-content-center">
+      <div class="col-6 m-3">
+        <div class="input-group mb-3">
+          <button class="btn btn-primary"  [disabled]="address" type="button" (click)="connectWallet()">{{address ? 'Conectado a:' :
+            'Conectar'}}</button>
+          <input type="text" class="form-control" [value]="address" disabled>
+        </div>
+      </div>
+    </div>
+
+    <div class="h-100 d-flex justify-content-center align-items-center">
+      <div class="card  w-50">
+        <div class="card-header bg-primary bg-gradient text-white">
+          <h5 class="card-title">Simple Swap Contract</h5>
+        </div>
+        <div class="card-body">
+          <app-token [tipo]="'Token A'" [balance]="balanceA"></app-token>
+          <p></p>
+          <app-token [tipo]="'Token B'" [balance]="balanceB"></app-token>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
