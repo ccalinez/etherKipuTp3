@@ -1,6 +1,7 @@
 
 const { expect } = require("chai");
 const hre = require("hardhat");
+const { ethers } = require("hardhat");
 
 
 describe("SimpleSwap", function () {
@@ -56,6 +57,16 @@ describe("SimpleSwap", function () {
         await swapContract.connect(user1).addLiquidity(tokenAAddress, tokenBAddress, 10000, 15000, 1000, 1000, user1.address, 200);
 
         let balanceLiquidity = await swapContract.balanceOf(user1.address);
+        console.log("Liquidity tokens :", balanceLiquidity.toString());
+        expect(balanceLiquidity).to.gt(0);
+
+        await tokenA.connect(user2).approve(swapAddress, 1000);
+        expect(await tokenA.allowance(user2, swapAddress)).to.equal(1000);
+        await tokenB.connect(user2).approve(swapAddress, 1000);
+        expect(await tokenB.allowance(user2, swapAddress)).to.equal(1000);
+        await swapContract.connect(user2).addLiquidity(tokenAAddress, tokenBAddress, 1000, 1000, 100, 100, user2.address, 200);
+
+        balanceLiquidity = await swapContract.balanceOf(user2.address);
         console.log("Liquidity tokens :", balanceLiquidity.toString());
         expect(balanceLiquidity).to.gt(0);
     });
@@ -148,6 +159,25 @@ describe("SimpleSwap", function () {
         const newAmountABalance = await tokenA.balanceOf(user1.address);
         console.log("User1 Balance A after swap:", newAmountABalance.toString());
         expect(newAmountABalance).to.equal(amountABalance + BigInt(amountOut));
+    });
+
+    it("Get Price", async function () {
+        //set allowance for swapContract
+        await tokenA.connect(user1).approve(swapAddress, 10000);
+        expect(await tokenA.allowance(user1, swapAddress)).to.equal(10000);
+        await tokenB.connect(user1).approve(swapAddress, 15000);
+        expect(await tokenB.allowance(user1, swapAddress)).to.equal(15000);
+        await swapContract.connect(user1).addLiquidity(tokenAAddress, tokenBAddress, 10000, 15000, 1000, 1000, user1.address, 200);
+
+        const reserveA = await await tokenA.balanceOf(swapAddress);
+        console.log("Reserve A:", reserveA.toString());
+        const reserveB = await await tokenB.balanceOf(swapAddress);
+        console.log("Reserve B:", reserveB.toString());
+        const price = (reserveB * 10n ** 18n) / reserveA;
+        console.log("Price calculated:", price.toString());
+        const priceReturned = await swapContract.getPrice(tokenAAddress, tokenBAddress);
+        console.log("Price Returned:", priceReturned.toString());
+        expect(price).to.equal(priceReturned);
     });
 
 
