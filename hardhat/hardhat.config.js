@@ -1,4 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("@nomicfoundation/hardhat-ethers");
+// ...existing code...
 const { vars } = require("hardhat/config");
 
 const ALCHEMY_API_KEY = vars.get("ALCHEMY_API_KEY");

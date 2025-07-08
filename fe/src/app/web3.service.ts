@@ -11,7 +11,7 @@ interface IERC20 extends Contract {
 
 interface SwapContract extends IERC20 {
   getPrice(tokenA : string, tokenB: string): number;
-  swapExactTokensForTokens(amountIn : number, amountOutMin: number, path : string [], to : string, deadline : number) : number [];
+  swapExactTokensForTokens(amountIn : ethers.BigNumber, amountOutMin: ethers.BigNumber, path : string [], to : string, deadline : number) : number [];
 }
 
 @Injectable({
@@ -101,17 +101,21 @@ export class Web3Service {
     return tx;
   }
 
-  async swapTokens(tokenA: string, tokenB: string, amountIn: number, amountOutMin: number): Promise<void> {
+  async swapTokens(tokenA: string, tokenB: string, amountIn: number, amountOutMin: number): Promise<number []> {
     if (!this.swapContract) throw new Error('Swap contract no disponible');
     const path = [tokenA, tokenB];
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutos
-    const tx = await this.swapContract.swapExactTokensForTokens(
-      ethers.utils.parseUnits(amountIn.toString(), 18),
-      ethers.utils.parseUnits(amountOutMin.toString(), 18),
+    const amountInArg = ethers.utils.parseUnits(amountIn.toString(), 18);
+    const amountOutMinArg = ethers.utils.parseUnits(amountOutMin.toString(), 18);
+    const to = await this.getAccountAddress();
+    if (!to) throw new Error('No account address found');
+    const result = await this.swapContract.swapExactTokensForTokens(
+      amountInArg,
+      amountOutMinArg,
       path,
-      await this.getAccountAddress(),
+      to,
       deadline
     );
-    await tx.wait();
+    return result;
   }
 }
