@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { Web3Service } from './web3.service';
 import { TokenComponent } from './token/token.component';
 import { CommonModule } from '@angular/common';
-import { ToastService } from './toast.service';
 
 
 
@@ -31,7 +30,7 @@ export class AppComponent {
 
 
 
-  constructor(_web3Srv: Web3Service, public toastService: ToastService) {
+  constructor(_web3Srv: Web3Service) {
     this.web3Srv = _web3Srv;
     this.connectWallet();
 
