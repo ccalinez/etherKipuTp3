@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
-import { ethers } from 'ethers';
+import { ContractTransaction, ethers } from 'ethers';
 
 import { Contract } from 'ethers';
 
 interface IERC20 extends Contract {
   balanceOf(address: string): Promise<ethers.BigNumber>;
   decimals(): Promise<number>;
-  approve(spender : string, amount :  ethers.BigNumber) : boolean
+  approve(spender : string, amount :  ethers.BigNumber) : Promise<ContractTransaction>;
 }
 
 interface SwapContract extends IERC20 {
   getPrice(tokenA : string, tokenB: string): number;
-  swapExactTokensForTokens(amountIn : ethers.BigNumber, amountOutMin: ethers.BigNumber, path : string [], to : string, deadline : number) : number [];
+  swapExactTokensForTokens(amountIn : ethers.BigNumber, amountOutMin: ethers.BigNumber, path : string [], to : string, deadline : number) : Promise<ContractTransaction>;
 }
 
 @Injectable({
@@ -41,7 +41,7 @@ export class Web3Service {
           'function removeLiquidity(address tokenA, address tokenB, uint256 liquidity, uint256 amountAMin, uint256 amountBMin, address to, uint256 deadline) returns (uint256 amountA, uint256 amountB)',
           'function swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, address[] calldata path, address to, uint256 deadline) returns (uint256[] memory amounts)',
         ],
-        this.provider
+        this.signer
       ) as SwapContract; 
     } else {
       console.error('MetaMask no está instalado');
@@ -76,12 +76,13 @@ export class Web3Service {
     const rawBalance = await tokenContract.balanceOf(userAddress);
     const decimals = await tokenContract.decimals();
     const balance = ethers.utils.formatUnits(rawBalance, decimals);
-    return balance;
+    return rawBalance.toString();
   }
 
   async getSwapPrice(tokenA: string, tokenB: string): Promise<number> {
     if (!this.swapContract) throw new Error('Swap contract no disponible');
-    const price = await this.swapContract.getPrice(tokenA, tokenB);
+    let price = await this.swapContract.getPrice(tokenA, tokenB);
+    price = parseFloat(ethers.utils.formatUnits(price, 18));
     return price;
     //return ethers.utils.formatEther(price);
   }
@@ -94,28 +95,32 @@ export class Web3Service {
     ];
 
     const tokenContract = new ethers.Contract(tokenAddress, abi, this.signer) as IERC20;
-    const decimals = await tokenContract.decimals();
-    const amountInWei = ethers.utils.parseUnits(amount.toString(), decimals);
-    
-    const tx = await tokenContract.approve(this.swapAddress, amountInWei);
-    return tx;
+    //const decimals = await tokenContract.decimals();
+    //const amountInWei = ethers.utils.parseUnits(amount.toString(), decimals);
+    const tx = await tokenContract.approve(this.swapAddress, ethers.BigNumber.from(amount));
+    await tx.wait();
+    return true;
   }
 
-  async swapTokens(tokenA: string, tokenB: string, amountIn: number, amountOutMin: number): Promise<number []> {
+  async swapTokens(tokenIn: string, tokenOut: string, amountIn: number, amountOutMin: number): Promise<boolean> {
     if (!this.swapContract) throw new Error('Swap contract no disponible');
-    const path = [tokenA, tokenB];
+    const path = [tokenIn, tokenOut];
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutos
-    const amountInArg = ethers.utils.parseUnits(amountIn.toString(), 18);
-    const amountOutMinArg = ethers.utils.parseUnits(amountOutMin.toString(), 18);
+    //const amountInArg = ethers.utils.parseUnits(amountIn.toString(), 18);
+
+    //const amountOutMinArg = ethers.utils.parseUnits(amountOutMin.toString(), 18);
     const to = await this.getAccountAddress();
     if (!to) throw new Error('No account address found');
-    const result = await this.swapContract.swapExactTokensForTokens(
-      amountInArg,
-      amountOutMinArg,
-      path,
-      to,
-      deadline
-    );
-    return result;
+    const tx = await this.swapContract.swapExactTokensForTokens(
+    ethers.BigNumber.from(amountIn),
+    ethers.BigNumber.from(amountOutMin),
+    path,
+    to,
+    deadline
+  );
+
+  await tx.wait();
+  return true;
+    
   }
 }

@@ -8,6 +8,14 @@
         </div>
     </div >
     <div class="row">
-        <input type="number" class="form-control" [(ngModel)]="valor" (ngModelChange)="onValorChange()"  placeholder="Cantidad de token {{tipo}}">
+        <form #form="ngForm">
+            <input type="number" name="amount" class="form-control" [(ngModel)]="valor" (ngModelChange)="onValorChange()" 
+            placeholder="Cantidad de token {{tipo}}" placement="bottom" 
+            required min="0.01" #amount="ngModel" ngbTooltip="{{ direccion ? 'Cant. a Entregar' : 'Minima Cant. a Recibir'}}">
+            <div *ngIf="amount.invalid && amount.touched" class="text-danger">
+                <div *ngIf="amount.errors?.['required']">El valor es obligatorio.</div>
+                <div *ngIf="amount.errors?.['min']">El valor debe ser mayor que 0.</div>
+            </div>
+        </form>
     </div>
 </div>
