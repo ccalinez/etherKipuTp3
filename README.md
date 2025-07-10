@@ -3,7 +3,7 @@
 This repository contains two main projects:
 
 - **hardhat**: Smart contracts and deployment scripts for the etherKipu protocol.
-- **fe**: Angular frontend for interacting with the etherKipu protocol.
+- **fe**: Angular frontend for interacting with the SimpleSwap protocol.
 
 ---
 
