@@ -2,12 +2,17 @@ import { Component } from '@angular/core';
 import { Web3Service } from './web3.service';
 import { TokenComponent } from './token/token.component';
 import { CommonModule } from '@angular/common';
+import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 
-
+interface Alert {
+	type: string;
+	message: string;
+  header : string;
+}
 
 @Component({
   selector: 'app-root',
-  imports: [TokenComponent, CommonModule],
+  imports: [TokenComponent, CommonModule, NgbToastModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -27,13 +32,19 @@ export class AppComponent {
   amountB: number = 0;
   working : boolean = false;
   toastMsg : string = "";
+  alert: Alert;
+  showAlertFlag : boolean = false;
 
 
 
   constructor(_web3Srv: Web3Service) {
     this.web3Srv = _web3Srv;
     this.connectWallet();
-
+    this.alert =  {
+                    type: 'warning',
+                    message: 'This is a warning alert',
+                    header : 'Warning'
+                  };
   }
 
   connectWallet(): void {
@@ -63,6 +74,17 @@ export class AppComponent {
   approve(): void {
     let token = this.directionAtoB ? this.tokenAAddress : this.tokenBAddress;
     let amount = this.directionAtoB ? this.amountA : this.amountB;
+    let balance = this.directionAtoB ? this.balanceA : this.balanceB;
+    if(amount > balance){
+      this.showAlert("bg-warning", "You cannot trade more tokens than you own.");
+      return;
+    }
+
+    if(amount <= 0){
+      this.showAlert("bg-warning", "You must specify a value greater than 0.");
+      return;
+    }
+
     this.working = true;
     this.web3Srv.approveToken(token, amount).then((result) => {
       this.approved = true;
@@ -76,11 +98,19 @@ export class AppComponent {
     }
     let tokenIn = this.directionAtoB ? this.tokenAAddress : this.tokenBAddress;
     let tokenOut = this.directionAtoB ? this.tokenBAddress : this.tokenAAddress;
+    let balanceIn = this.directionAtoB ? this.balanceA : this.balanceB;
     let amoutIn = this.directionAtoB ? this.amountA : this.amountB;
     let amoutOut = this.directionAtoB ? this.amountB : this.amountA;
     if(amoutIn <= 0 || amoutOut <= 0){
+      this.showAlert("bg-warning", "You must specify a value for either token.");
       return;
     }
+
+    if(amoutIn > balanceIn){
+      this.showAlert("bg-warning", "You cannot trade more tokens than you own.");
+      return;
+    }
+
     this.working = true;
     let result = this.web3Srv.swapTokens(tokenIn, tokenOut, amoutIn, amoutOut).then((result) => {
       this.working = false;
@@ -103,5 +133,16 @@ export class AppComponent {
       this.accountBalance = (Math.floor(_balance * Math.pow(10, 3)) / Math.pow(10, 3)).toString();
     });
 
+  }
+
+  showAlert(type : string = 'warning', message : string, header: string = 'Warning'){
+    this.alert.type = type + " text-light position-absolute top-50 start-50 translate-middle";
+    this.alert.message = message;
+    this.alert.header = header;
+    this.showAlertFlag = true;
+  }
+
+  closeAlert(){
+    this.showAlertFlag = false;
   }
 }

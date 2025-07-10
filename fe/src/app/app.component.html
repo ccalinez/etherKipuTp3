@@ -1,4 +1,4 @@
-<div class="container ">
+<div class="container">
   <div class="vh-100 bg-light bg-gradient w-100">
     <div class="row h-25 justify-content-center">
       <div class="col-8 mt-3">
@@ -11,42 +11,45 @@
         </div>
       </div>
     </div>
+    
     <div class="h-50 d-flex justify-content-center align-items-center">
       <div class="card  w-50">
         <div class="card-header bg-primary bg-gradient text-white">
-          <h5 class="card-title">Simple Swap Contract</h5>
-          <p class="card-text">Precio de Swap: {{price}}</p>
+          <div class="row">
+            <div class="col-6">
+              <span class="card-title h5">Simple Swap Contract</span>
+            </div>
+            <div class="col-6 text-end">
+              <span class="card-text ">Price: {{price}}</span>
+            </div>
+          </div>
         </div>
         <div class="card-body">
           <app-token [tipo]="'A'" [direccion]="directionAtoB"[(valor)]="amountA" [balance]="balanceA"></app-token>
           <div class="d-flex justify-content-center my-3">
-            <button type="button" class="btn btn-secondary" (click)="changeDirection()"> Dirección de Swap
+            <button type="button" class="btn btn-secondary" (click)="changeDirection()"> To
               <i class="bi {{ directionAtoB ? 'bi-caret-down-fill' : ' bi-caret-up-fill'}}"></i>
             </button>
           </div>
           <app-token [tipo]="'B'" [direccion]="!directionAtoB" [(valor)]="amountB" [balance]="balanceB"></app-token>
         </div>
-        <div class="card-footer  {{approved ? 'bg-success-subtle' : 'bg-warning-subtle'}}   d-flex justify-content-center align-items-center">
-           <button *ngIf="!approved" type="button" (click)="approve()" class="btn btn-warning">
+        <div class="card-footer  {{approved ? 'bg-success-subtle' : 'bg-warning-subtle'}} 
+         d-flex justify-content-center align-items-center">
+          <button *ngIf="!approved" type="button" (click)="approve()" class="btn btn-warning">
             Approve
-            <span *ngIf="working" class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+            <span *ngIf="working" class="spinner-border spinner-border-sm" aria-hidden="true" ></span>
           </button>
-           <button *ngIf="approved" type="button" (click)="swap()" class="btn btn-success">Swap</button>
+           <button *ngIf="approved" type="button" (click)="swap()" class="btn btn-success">Swap
+            <span *ngIf="working" class="spinner-border spinner-border-sm" aria-hidden="true" ></span>
+           </button>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
-
-<div class="toast-container position-fixed top-0 end-0 p-3">
-  <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header">
-      <strong class="me-auto">Attention</strong>
-      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-    <div class="toast-body">
-      {{toastMsg}}
+      <ngb-toast *ngIf="showAlertFlag" [class]="alert.type"
+            [autohide]="true"
+            [delay]="5000"
+            [header]="alert.header"
+            (hidden)="closeAlert()">{{ alert.message }}
+      </ngb-toast> 
     </div>
   </div>
 </div>
