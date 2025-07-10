@@ -1,4 +1,4 @@
-# etherKipu Monorepo
+# etherKipu TP4
 
 This repository contains two main projects:
 
