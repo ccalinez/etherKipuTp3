@@ -20,7 +20,7 @@ contract MyTokenB is ERC20, ERC20Pausable, Ownable {
         _unpause();
     }
 
-    function mint(address to, uint256 amount) public onlyOwner {
+    function mint(address to, uint256 amount) public {
         _mint(to, amount);
     }
 

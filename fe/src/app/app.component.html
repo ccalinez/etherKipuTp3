@@ -51,5 +51,31 @@
             (hidden)="closeAlert()">{{ alert.message }}
       </ngb-toast> 
     </div>
+    <div class="text-center">
+      <button type="button" (click)="openFaucet(content)" class="btn btn-success mb-5">Faucet</button>
+      <div class="text-muted">
+        <span>© 2023 - Simple Swap</span>
+      </div>
+    </div>
   </div>
 </div>
+
+<ng-template #content let-modal>
+	<div class="modal-header bg-primary bg-gradient">
+		<h5 class="modal-title text-white" id="modal-basic-title">Faucet</h5>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.close()"></button>
+	</div>
+	<div class="modal-body">
+    <div class="input-group">
+      <select class="form-select" [(ngModel)]="fausetTokenType" id="selectToken">
+        <option selected value="1">Token A</option>
+        <option value="2">Token A</option>
+        <option value="3">Tokens AyB</option>
+      </select>
+      <label class="input-group-text" for="inputAmount">Amount:</label>
+      <input type="number" [(ngModel)]="fausetTokenAmount" id="inputAmount" class="form-control">
+      <button class="btn btn-success" (click)="askToken()" type="button">Send <span *ngIf="workingFauset" class="spinner-border spinner-border-sm" aria-hidden="true" ></span></button>
+  </div>
+		
+	</div>
+</ng-template>

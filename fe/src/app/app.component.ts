@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef } from '@angular/core';
 import { Web3Service } from './web3.service';
 import { TokenComponent } from './token/token.component';
 import { CommonModule } from '@angular/common';
-import { NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
 
 interface Alert {
 	type: string;
@@ -12,7 +14,7 @@ interface Alert {
 
 @Component({
   selector: 'app-root',
-  imports: [TokenComponent, CommonModule, NgbToastModule],
+  imports: [TokenComponent, CommonModule, NgbToastModule, NgbModalModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -31,13 +33,16 @@ export class AppComponent {
   amountA: number = 0;
   amountB: number = 0;
   working : boolean = false;
+  workingFauset : boolean = false;
   toastMsg : string = "";
   alert: Alert;
   showAlertFlag : boolean = false;
+  fausetTokenType : number = 0; // 0: ETH, 1: Token A, 2: Token B
+  fausetTokenAmount : number = 0;
 
 
 
-  constructor(_web3Srv: Web3Service) {
+  constructor(_web3Srv: Web3Service, private modal : NgbModal) {
     this.web3Srv = _web3Srv;
     this.connectWallet();
     this.alert =  {
@@ -144,5 +149,32 @@ export class AppComponent {
 
   closeAlert(){
     this.showAlertFlag = false;
+  }
+
+  openFaucet(content: TemplateRef<any>){
+    this.modal.open(content, { centered: true, size: 'md' });
+  }
+
+  askToken(){
+    this.workingFauset = true;
+    if(this.fausetTokenType == 1){
+      this.web3Srv.getFausetToken(this.tokenAAddress, this.fausetTokenAmount).then(() => {
+        this.web3Srv.getTokenBalance(this.tokenAAddress, this.address).then(response => this.balanceA = Number(response));
+        this.workingFauset = false;
+      });
+    }else if(this.fausetTokenType == 2){
+      this.web3Srv.getFausetToken(this.tokenBAddress, this.fausetTokenAmount).then(() => {
+        this.web3Srv.getTokenBalance(this.tokenBAddress, this.address).then(response => this.balanceB = Number(response));
+        this.workingFauset = false;
+      });
+    }else {
+      this.web3Srv.getFausetToken(this.tokenAAddress, this.fausetTokenAmount).then(() => {
+        this.web3Srv.getTokenBalance(this.tokenAAddress, this.address).then(response => this.balanceA = Number(response));
+        this.web3Srv.getFausetToken(this.tokenBAddress, this.fausetTokenAmount).then(() => {
+          this.web3Srv.getTokenBalance(this.tokenBAddress, this.address).then(response => this.balanceB = Number(response));
+          this.workingFauset = false;
+        });   
+      });
+    }
   }
 }

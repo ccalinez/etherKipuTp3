@@ -87,18 +87,18 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
     
         uint start = block.timestamp;
         //Check input
-        require(tokenA != address(0) && tokenB != address(0), "Invalid token addresses!");
-        require(to != address(0), "Invalid recipient address");
+        require(tokenA != address(0) && tokenB != address(0), "Invalid token addresses"); //23 caracteres short string
+        require(to != address(0), "Invalid recipient address"); //24 caracteres short string
         require((amountADesired > 0 && amountBDesired > 0 && deadline > 0 
-            && amountAMin > 0 && amountBMin > 0 ),"Invalid input parameters!"); 
+            && amountAMin > 0 && amountBMin > 0 ), "Invalid input parameters");  //24 caracteres short string
         // Calculate optimal amounts based on current reserves
         (amountA, amountB) = calculateLiquidityAmounts(amountADesired, amountBDesired);
         // Ensure minimums are met
-        require((amountA >= amountAMin),"Not meet the minimum for TokenA!");
-        require((amountB >= amountBMin),"Not meet the minimum for TokenB!");
+        require((amountA >= amountAMin),"Not minimum for TokenA"); //22 caracteres short string
+        require((amountB >= amountBMin),"Not minimum for TokenB"); //22 caracteres short string
         // Check sender's balance
-        require(ERC20(tokenA).balanceOf(msg.sender) >= amountA, "Insufficient TokenA funds!");
-        require(ERC20(tokenB).balanceOf(msg.sender) >= amountB, "Insufficient TokenB funds!");
+        require(ERC20(tokenA).balanceOf(msg.sender) >= amountA, "Insufficient TokenA funds"); //25 caracteres short string
+        require(ERC20(tokenB).balanceOf(msg.sender) >= amountB, "Insufficient TokenB funds"); //25 caracteres short string
         // Transfer tokens from sender to contract
         ERC20(tokenA).transferFrom(msg.sender, address(this), amountA);
         ERC20(tokenB).transferFrom(msg.sender, address(this), amountB);
@@ -107,7 +107,7 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
         reserveA += amountA;
         reserveB += amountB;
         super._mint(to, liquidity);
-        require(deadline > block.timestamp - start, "Deadline reached!");
+        require(deadline > block.timestamp - start, "Deadline reached");  //16 caracteres short string
         emit LiquidityAdded(amountA, amountB, liquidity);
         return (amountA, amountB, liquidity);
     }
@@ -134,20 +134,20 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
         uint _reserveB = reserveB;
         uint start = block.timestamp;
         // Check inputs
-        require(tokenA != address(0) && tokenB != address(0), "Invalid token addresses!");
-        require(to != address(0), "Invalid recipient address");
+        require(tokenA != address(0) && tokenB != address(0), "Invalid token addresses"); //23 caracteres short string
+        require(to != address(0), "Invalid recipient address"); //25 caracteres short string
         require((liquidity > 0 && deadline > 0 && amountAMin >= 0 && amountBMin >= 0),
-        "Invalid input parameters!");
+        "Invalid input parameters"); //24 caracteres short string
 
-        require(this.balanceOf(msg.sender) >= liquidity, "Insufficient Liquidity Tokens!");
+        require(balanceOf(msg.sender) >= liquidity, "Low liquidity"); //13 caracteres short string
         // Calculate token amounts based on liquidity tokens
         (amountA, amountB) = calculateTokenAmounts(liquidity);
         // Check minimum amounts
-        require((amountA >= amountAMin), "Not meet the minimum for TokenA!");
-        require((amountB >= amountBMin), "Not meet the minimum for TokenB!");
+        require((amountA >= amountAMin), "Minimum TokenA not met"); //22 caracteres short string
+        require((amountB >= amountBMin), "Minimum TokenB not met"); //22 caracteres short string
         // Check that there are reserves to cover transfers 
-        require((_reserveA >= amountA), "Insufficient TokenA!");
-        require((_reserveB >= amountB), "Insufficient TokenB!");
+        require((_reserveA >= amountA), "Insufficient TokenA"); //19 caracteres short string
+        require((_reserveB >= amountB), "Insufficient TokenB"); //19 caracteres short string
         // Burn liquidity tokens
         super._burn(msg.sender, liquidity);
         // Update reserves
@@ -156,7 +156,7 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
         // Transfer tokens to user
         ERC20(tokenA).transfer(to, amountA);
         ERC20(tokenB).transfer(to, amountB);
-        require(deadline > block.timestamp - start, "Deadline reached!");
+        require(deadline > block.timestamp - start, "Deadline reached"); //16 caracteres short string
         emit LiquidityAdded(amountA, amountB, liquidity);
         return (amountA, amountB);
     }
@@ -173,8 +173,8 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
         returns (uint price){
         uint _reserveA = reserveA;
         uint _reserveB = reserveB;
-        require(tokenA != address(0) && tokenB != address(0), "Invalid token addresses!");
-        require(_reserveA > 0 && _reserveB > 0, "No available liquidity tokens!");
+        require(tokenA != address(0) && tokenB != address(0), "Invalid addresses"); //17 caracteres short string
+        require(_reserveA > 0 && _reserveB > 0, "No liquidity");  //11 caracteres short string
         price = (_reserveB * 1e18) / _reserveA;
         return price;
      }
@@ -190,7 +190,7 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
      function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) 
         external pure 
         returns (uint amountOut){
-        require(amountIn > 0 , "Invalid input parameters!");
+        require(amountIn > 0 , "Invalid input"); //13 caracteres short string
         amountOut = (amountIn * reserveOut) / (reserveIn + amountIn);
         return amountOut;
      }
@@ -212,19 +212,19 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
         
         uint start = block.timestamp;
         // Check inputs
-        require(amountIn > 0 && amountOutMin > 0 && path.length == 2,"Invalid input parameters!");
-        require(path[0] != address(0) && path[1] != address(0), "Invalid token addresses!");
-        require(to != address(0), "Invalid recipient address");
+        require(amountIn > 0 && amountOutMin > 0 && path.length == 2,"Invalid input"); //13 caracteres short string
+        require(path[0] != address(0) && path[1] != address(0), "Invalid address"); //15 caracteres short string
+        require(to != address(0), "Invalid address"); //15 caracteres short string
         // Determine the type of token you want to exchange A or B
         bool isTokenA = keccak256(abi.encodePacked(ERC20(path[0]).symbol())) == keccak256(abi.encodePacked("MTKA"));
         // Calculate the amount of tokens that will be delivered
         uint _reserveA = reserveA;
         uint _reserveB = reserveB;
         uint amountOut = this.getAmountOut(amountIn, (isTokenA ? _reserveA : _reserveB), (isTokenA ? _reserveB : _reserveA));
-        require((amountOut >= amountOutMin),"Not meet the minimum!");
+        require((amountOut >= amountOutMin),"Minimum unmet"); //13 caracteres short string
         // Check for sufficient balances
-        require(ERC20(path[0]).balanceOf(msg.sender) >= amountIn, "Insufficient Token IN funds!");
-        require(ERC20(path[1]).balanceOf(address(this)) >= amountOut, "Insufficient Token OUT funds!");
+        require(ERC20(path[0]).balanceOf(msg.sender) >= amountIn, "Not enough TokenIN"); //18 caracteres short string
+        require(ERC20(path[1]).balanceOf(address(this)) >= amountOut, "Not enough TokenOUT"); //19 caracteres short string
         // Update reserves
         if(isTokenA){
             reserveA = _reserveA + amountIn;
@@ -240,7 +240,7 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
         amounts = new uint[](2);
         amounts[0] = amountIn;
         amounts[1] = amountOut;
-        require(deadline > block.timestamp - start, "Deadline reached!");
+        require(deadline > block.timestamp - start, "Deadline reached"); //16 caracteres short strin
         emit TokenSwapped(ERC20(path[0]).symbol(), amountIn, ERC20(path[1]).symbol(), amountOut);
         return amounts;
      }

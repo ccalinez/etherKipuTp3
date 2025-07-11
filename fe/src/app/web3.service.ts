@@ -18,6 +18,7 @@ interface SwapContract extends IERC20 {
   providedIn: 'root',
 })
 export class Web3Service {
+
   private provider: ethers.providers.Web3Provider | null = null;
   private signer: ethers.Signer | null = null;
   private swapContract: SwapContract | null = null;
@@ -54,6 +55,11 @@ export class Web3Service {
     }
     return null;
   }
+
+  async  getFausetToken(tokenAAddress: string, fausetTokenAmount: number) {
+    throw new Error('Method not implemented.');
+  }
+
 
   async getBalance(): Promise<string | null> {
     if (this.signer) {
