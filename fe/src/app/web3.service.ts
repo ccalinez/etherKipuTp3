@@ -7,6 +7,7 @@ interface IERC20 extends Contract {
   balanceOf(address: string): Promise<ethers.BigNumber>;
   decimals(): Promise<number>;
   approve(spender : string, amount :  ethers.BigNumber) : Promise<ContractTransaction>;
+  mint(acount : string, amount :  ethers.BigNumber) : Promise<ContractTransaction>;
 }
 
 interface SwapContract extends IERC20 {
@@ -22,8 +23,9 @@ export class Web3Service {
   private provider: ethers.providers.Web3Provider | null = null;
   private signer: ethers.Signer | null = null;
   private swapContract: SwapContract | null = null;
+  private userAddress : string | null = null;
 
-  readonly swapAddress : string = "0x4B7E73BF9666f9d9146c28852ADAF29e1841c94D";
+  readonly swapAddress : string = "0x608697FC0E086b2Ffc4B5DA72eBC08CE7F37F881";
 
 
   constructor() {
@@ -34,6 +36,7 @@ export class Web3Service {
       this.provider = new ethers.providers.Web3Provider(window.ethereum);
       await this.provider.send('eth_requestAccounts', []);
       this.signer = this.provider.getSigner();
+      this.userAddress = await this.getAccountAddress();
       this.swapContract = new ethers.Contract(
         this.swapAddress,
         [
@@ -50,14 +53,25 @@ export class Web3Service {
   }
 
   async getAccountAddress(): Promise<string | null> {
+    if(this.userAddress){
+      return this.userAddress;
+    }
     if (this.signer) {
       return await this.signer.getAddress();
     }
     return null;
   }
 
-  async  getFausetToken(tokenAAddress: string, fausetTokenAmount: number) {
-    throw new Error('Method not implemented.');
+  async  getFausetToken(tokenAddress: string, amount: number): Promise<boolean>{
+    if (!this.signer ) throw new Error('Signer no disponible');
+    if (!this.userAddress) throw new Error('Wallet not conected');
+    const abi = [
+      'function mint(address to, uint256 amount)',
+    ];
+    const tokenContract = new ethers.Contract(tokenAddress, abi, this.signer) as IERC20;
+    const tx = await tokenContract.mint(this.userAddress, ethers.BigNumber.from(amount));
+    await tx.wait();
+    return true;
   }
 
 

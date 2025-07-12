@@ -2,7 +2,7 @@ import { Component, TemplateRef } from '@angular/core';
 import { Web3Service } from './web3.service';
 import { TokenComponent } from './token/token.component';
 import { CommonModule } from '@angular/common';
-import { NgbModal, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalRef, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 
@@ -23,8 +23,8 @@ export class AppComponent {
   address: string = '';
   accountBalance: string | null = null;
   private web3Srv: Web3Service;
-  tokenAAddress: string = "0xe7161E317bC42d7AC58e6f5cc2774A9e7aBB8282";
-  tokenBAddress: string = "0xA8f938dAAb4Acc224f35851FC8987C1b883FCE29";
+  tokenAAddress: string = "0x5fD06Fe62edDB7f5Ee9F1611517859B65047bc57";
+  tokenBAddress: string = "0x62e67d6cE1B6aCB31023497d0ee05d41A5Dc547a";
   balanceA: number = 0;
   balanceB: number = 0;
   price: number = 0;
@@ -37,8 +37,9 @@ export class AppComponent {
   toastMsg : string = "";
   alert: Alert;
   showAlertFlag : boolean = false;
-  fausetTokenType : number = 0; // 0: ETH, 1: Token A, 2: Token B
+  fausetTokenType : number = 1; 
   fausetTokenAmount : number = 0;
+  openModal : NgbModalRef | null = null;
 
 
 
@@ -56,7 +57,6 @@ export class AppComponent {
     this.web3Srv.connectWallet().then(() => {
       this.web3Srv.getAccountAddress().then((address) => {
         this.address = address ? address : "";
-        console.log('Dirección de la cuenta:', this.address);
         this.web3Srv.getTokenBalance(this.tokenAAddress, this.address).then(response => this.balanceA = Number(response));
         this.web3Srv.getTokenBalance(this.tokenBAddress, this.address).then(response => this.balanceB = Number(response));
       });
@@ -117,7 +117,7 @@ export class AppComponent {
     }
 
     this.working = true;
-    let result = this.web3Srv.swapTokens(tokenIn, tokenOut, amoutIn, amoutOut).then((result) => {
+    this.web3Srv.swapTokens(tokenIn, tokenOut, amoutIn, amoutOut).then((result) => {
       this.working = false;
       this.resetForm();
     });
@@ -152,27 +152,47 @@ export class AppComponent {
   }
 
   openFaucet(content: TemplateRef<any>){
-    this.modal.open(content, { centered: true, size: 'md' });
+    this.openModal =  this.modal.open(content, { centered: true, size: 'md' });
   }
 
   askToken(){
+    if(this.fausetTokenType == 0 || this.fausetTokenAmount <= 0){
+      return;
+    }
     this.workingFauset = true;
     if(this.fausetTokenType == 1){
       this.web3Srv.getFausetToken(this.tokenAAddress, this.fausetTokenAmount).then(() => {
-        this.web3Srv.getTokenBalance(this.tokenAAddress, this.address).then(response => this.balanceA = Number(response));
-        this.workingFauset = false;
+        
+        this.web3Srv.getTokenBalance(this.tokenAAddress, this.address).then((response) => {
+          this.balanceA = Number(response);
+          this.fausetTokenType = 1; 
+          this.fausetTokenAmount = 0;
+          this.workingFauset = false;
+          this.openModal?.close();
+        });
+        
       });
     }else if(this.fausetTokenType == 2){
       this.web3Srv.getFausetToken(this.tokenBAddress, this.fausetTokenAmount).then(() => {
-        this.web3Srv.getTokenBalance(this.tokenBAddress, this.address).then(response => this.balanceB = Number(response));
-        this.workingFauset = false;
+        this.web3Srv.getTokenBalance(this.tokenBAddress, this.address).then((response) => {
+          this.balanceB = Number(response);
+          this.fausetTokenType = 1; 
+          this.fausetTokenAmount = 0;
+          this.workingFauset = false;
+          this.openModal?.close();
+        });
       });
     }else {
       this.web3Srv.getFausetToken(this.tokenAAddress, this.fausetTokenAmount).then(() => {
         this.web3Srv.getTokenBalance(this.tokenAAddress, this.address).then(response => this.balanceA = Number(response));
         this.web3Srv.getFausetToken(this.tokenBAddress, this.fausetTokenAmount).then(() => {
-          this.web3Srv.getTokenBalance(this.tokenBAddress, this.address).then(response => this.balanceB = Number(response));
-          this.workingFauset = false;
+          this.web3Srv.getTokenBalance(this.tokenBAddress, this.address).then((response) => {
+            this.balanceB = Number(response);
+            this.fausetTokenType = 1; 
+            this.fausetTokenAmount = 0;
+            this.workingFauset = false;
+            this.openModal?.close();
+          });
         });   
       });
     }

@@ -20,7 +20,7 @@ contract MyTokenA is ERC20, ERC20Pausable, Ownable {
         _unpause();
     }
 
-    function mint(address to, uint256 amount) public {
+    function mint(address to, uint256 amount) whenNotPaused public {
         _mint(to, amount);
     }
 

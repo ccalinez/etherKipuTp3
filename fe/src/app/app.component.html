@@ -51,7 +51,7 @@
             (hidden)="closeAlert()">{{ alert.message }}
       </ngb-toast> 
     </div>
-    <div class="text-center">
+    <div class="text-center mt-4">
       <button type="button" (click)="openFaucet(content)" class="btn btn-success mb-5">Faucet</button>
       <div class="text-muted">
         <span>© 2023 - Simple Swap</span>
@@ -68,8 +68,8 @@
 	<div class="modal-body">
     <div class="input-group">
       <select class="form-select" [(ngModel)]="fausetTokenType" id="selectToken">
-        <option selected value="1">Token A</option>
-        <option value="2">Token A</option>
+        <option  selected value="1">Token A</option>
+        <option value="2">Token B</option>
         <option value="3">Tokens AyB</option>
       </select>
       <label class="input-group-text" for="inputAmount">Amount:</label>

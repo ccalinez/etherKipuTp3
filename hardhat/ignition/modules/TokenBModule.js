@@ -1,10 +1,13 @@
 const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
+const { vars } = require("hardhat/config");
 
-const TokenAModule = buildModule("TokenAModule", (m) => {
-  const owner = m.getParameter("owner");
-  const tokenA = m.contract("TokenA", [owner]);
+const OWNER_ADDRESS = vars.get("OWNER_ADDRESS");
 
-  return { tokenA };
+const TokenBModule = buildModule("TokenBModule", (m) => {
+  const owner = m.getParameter("owner", OWNER_ADDRESS);
+  const tokenB = m.contract("MyTokenB", [owner]);
+
+  return { tokenB };
 });
 
-module.exports = TokenAModule;
+module.exports = TokenBModule;
