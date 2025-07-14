@@ -98,6 +98,7 @@ To measure unit test coverage, run the following command:
    ```
 
 The current contract coverage is detailed below
+  ```
 -----------------|----------|----------|----------|----------|----------------|
 File             |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
 -----------------|----------|----------|----------|----------|----------------|
@@ -108,6 +109,7 @@ File             |  % Stmts | % Branch |  % Funcs |  % Lines |Uncovered Lines |
 -----------------|----------|----------|----------|----------|----------------|
 All files        |    91.57 |    46.43 |    72.73 |    92.93 |                |
 -----------------|----------|----------|----------|----------|----------------|
+   ```
 
 ## Smart Contract Deploy
 We deploy and verify the smart contracts of the respective tokens A and B that will be exchanged by the Simple Swap contract, executing the following commands:
@@ -185,4 +187,4 @@ Copy the contents of the dist/<project-name>/ folder to your web server's public
 Click the following link to try the Trial version https://ccalinez.github.io/
 
 ## Demo
-To see a live demonstration, access the following link. 
+To see a live demonstration, access the following link https://drive.google.com/file/d/187RKBd5opLSpP3iUjqbyAaMO1MJGPedq/view?usp=sharing
