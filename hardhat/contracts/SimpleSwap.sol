@@ -187,13 +187,10 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
      * @param reserveOut Current reserve of the output token
      * @return amountOut The amount of output tokens the user would receive
      */
-     function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) 
-        external pure 
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut)external pure 
         returns (uint amountOut){
-        require(amountIn > 0 , "Invalid input"); //13 caracteres short string
-        amountOut = (amountIn * reserveOut) / (reserveIn + amountIn);
-        return amountOut;
-     }
+        return _getAmountOut(amountIn, reserveIn, reserveOut);
+    }
 
     /**
      * @notice Swaps an exact amount of one token for another
@@ -220,7 +217,7 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
         // Calculate the amount of tokens that will be delivered
         uint _reserveA = reserveA;
         uint _reserveB = reserveB;
-        uint amountOut = this.getAmountOut(amountIn, (isTokenA ? _reserveA : _reserveB), (isTokenA ? _reserveB : _reserveA));
+        uint amountOut = _getAmountOut(amountIn, (isTokenA ? _reserveA : _reserveB), (isTokenA ? _reserveB : _reserveA));
         require((amountOut >= amountOutMin),"Minimum unmet"); //13 caracteres short string
         // Check for sufficient balances
         require(ERC20(path[0]).balanceOf(msg.sender) >= amountIn, "Not enough TokenIN"); //18 caracteres short string
@@ -316,6 +313,22 @@ contract SimpleSwap is ERC20, ERC20Pausable, Ownable {
             return Math.min(liquidityA, liquidityB);
         }
     }
+
+    /**
+     * @notice Calculates the amount of output tokens that will be received given an input amount and reserves
+     * @dev Uses a constant product formula without fees
+     * @param amountIn Amount of input tokens
+     * @param reserveIn Current reserve of the input token
+     * @param reserveOut Current reserve of the output token
+     * @return amountOut The amount of output tokens the user would receive
+     */
+     function _getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) 
+        internal pure 
+        returns (uint amountOut){
+        require(amountIn > 0 , "Invalid input"); //13 caracteres short string
+        amountOut = (amountIn * reserveOut) / (reserveIn + amountIn);
+        return amountOut;
+     }
 
     
 }
